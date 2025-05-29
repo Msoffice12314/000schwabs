@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Schwab AI Trading</title>
+    <link rel="stylesheet" href="/static/css/dark_theme.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>Schwab AI</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="/" class="nav-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/portfolio" class="nav-item">
+                <i class="fas fa-briefcase"></i>
+                <span>Portfolio</span>
+            </a>
+            <a href="/analysis" class="nav-item">
+                <i class="fas fa-brain"></i>
+                <span>AI Analysis</span>
+            </a>
+            <a href="/settings" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="status-indicator {{ 'online' if is_authenticated else 'offline' }}"></div>
+                <span>{{ 'Connected' if is_authenticated else 'Disconnected' }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1>Trading Dashboard</h1>
+                <div class="market-status">
+                    <div class="status-badge {{ 'open' if market_open else 'closed' }}">
+                        <i class="fas fa-circle"></i>
+                        Market {{ 'Open' if market_open else 'Closed' }}
+                    </div>
+                    <span class="current-time" id="currentTime">{{ current_time }}</span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="quick-actions">
+                    <button class="btn btn-primary" id="refreshData">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    {% if not is_authenticated %}
+                    <button class="btn btn-success" id="connectBtn">
+                        <i class="fas fa-plug"></i>
+                        Connect
+                    </button>
+                    {% else %}
+                    <button class="btn btn-danger" id="disconnectBtn">
+                        <i class="fas fa-power-off"></i>
+                        Disconnect
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+        
+        <!-- Dashboard Cards -->
+        <div class="dashboard-grid">
+            <!-- Portfolio Summary Card -->
+            <div class="card portfolio-summary">
+                <div class="card-header">
+                    <h3>Portfolio Summary</h3>
+                    <div class="card-actions">
+                        <button class="btn-icon" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="portfolio-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Value</div>
+                            <div class="stat-value" id="totalValue">$0.00</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Day P&L</div>
+                            <div class="stat-value gain" id="dayPnL">+$0.00</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Total P&L</div>
+                            <div class="stat-value gain" id="totalPnL">+$0.00</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Cash</div>
+                            <div class="stat-value" id="cashBalance">$0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="portfolio-chart">
+                        <canvas id="portfolioChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Market Overview -->
+            <div class="card market-overview">
+                <div class="card-header">
+                    <h3>Market Overview</h3>
+                </div>
+                <div class="card-content">
+                    <div class="market-indices">
+                        <div class="index-item">
+                            <div class="index-name">S&P 500</div>
+                            <div class="index-value" id="sp500">4,500.00</div>
+                            <div class="index-change gain">+1.25%</div>
+                        </div>
+                        <div class="index-item">
+                            <div class="index-name">NASDAQ</div>
+                            <div class="index-value" id="nasdaq">14,000.00</div>
+                            <div class="index-change gain">+1.80%</div>
+                        </div>
+                        <div class="index-item">
+                            <div class="index-name">DOW</div>
+                            <div class="index-value" id="dow">35,000.00</div>
+                            <div class="index-change loss">-0.45%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Predictions -->
+            <div class="card ai-predictions">
+                <div class="card-header">
+                    <h3>AI Predictions</h3>
+                    <div class="prediction-refresh">
+                        <span class="last-update">Updated 2 min ago</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="predictions-list" id="predictionsList">
+                        <div class="prediction-item">
+                            <div class="prediction-symbol">AAPL</div>
+                            <div class="prediction-signal buy">BUY</div>
+                            <div class="prediction-confidence">85%</div>
+                            <div class="prediction-target">$195.50</div>
+                        </div>
+                        <div class="prediction-item">
+                            <div class="prediction-symbol">TSLA</div>
+                            <div class="prediction-signal sell">SELL</div>
+                            <div class="prediction-confidence">72%</div>
+                            <div class="prediction-target">$240.00</div>
+                        </div>
+                        <div class="prediction-item">
+                            <div class="prediction-symbol">NVDA</div>
+                            <div class="prediction-signal buy">BUY</div>
+                            <div class="prediction-confidence">91%</div>
+                            <div class="prediction-target">$480.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Positions -->
+            <div class="card active-positions">
+                <div class="card-header">
+                    <h3>Active Positions</h3>
+                    <span class="position-count" id="positionCount">0 positions</span>
+                </div>
+                <div class="card-content">
+                    <div class="positions-table" id="positionsTable">
+                        <div class="table-header">
+                            <div>Symbol</div>
+                            <div>Qty</div>
+                            <div>Entry Price</div>
+                            <div>Current Price</div>
+                            <div>P&L</div>
+                            <div>Actions</div>
+                        </div>
+                        <div class="table-body" id="positionsBody">
+                            <div class="empty-state">
+                                <i class="fas fa-chart-pie"></i>
+                                <p>No active positions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Watchlist -->
+            <div class="card watchlist">
+                <div class="card-header">
+                    <h3>Watchlist</h3>
+                    <div class="card-actions">
+                        <button class="btn-icon" id="addSymbol" title="Add Symbol">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="watchlist-items" id="watchlistItems">
+                        <div class="watchlist-item">
+                            <div class="symbol-info">
+                                <div class="symbol">AAPL</div>
+                                <div class="company">Apple Inc.</div>
+                            </div>
+                            <div class="price-info">
+                                <div class="price">$188.50</div>
+                                <div class="change gain">+2.3%</div>
+                            </div>
+                        </div>
+                        <div class="watchlist-item">
+                            <div class="symbol-info">
+                                <div class="symbol">MSFT</div>
+                                <div class="company">Microsoft Corp.</div>
+                            </div>
+                            <div class="price-info">
+                                <div class="price">$415.20</div>
+                                <div class="change gain">+1.8%</div>
+                            </div>
+                        </div>
+                        <div class="watchlist-item">
+                            <div class="symbol-info">
+                                <div class="symbol">GOOGL</div>
+                                <div class="company">Alphabet Inc.</div>
+                            </div>
+                            <div class="price-info">
+                                <div class="price">$141.80</div>
+                                <div class="change loss">-0.9%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trading Activity -->
+            <div class="card trading-activity">
+                <div class="card-header">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-filter">
+                        <select id="activityFilter">
+                            <option value="all">All Activity</option>
+                            <option value="trades">Trades Only</option>
+                            <option value="orders">Orders Only</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <div class="activity-icon buy">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-action">BUY 100 AAPL @ $188.50</div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                            <div class="activity-status success">Filled</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon sell">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-action">SELL 50 TSLA @ $245.00</div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                            <div class="activity-status success">Filled</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon order">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-action">LIMIT ORDER: BUY 200 NVDA @ $475.00</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                            <div class="activity-status pending">Pending</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="addSymbolModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Symbol to Watchlist</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addSymbolForm">
+                    <div class="form-group">
+                        <label for="symbolInput">Symbol</label>
+                        <input type="text" id="symbolInput" class="form-control" placeholder="e.g., AAPL" autocomplete="off">
+                        <div class="symbol-suggestions" id="symbolSuggestions"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelAdd">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Symbol</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Connection Status Toast -->
+    <div id="connectionStatus" class="toast">
+        <div class="toast-content">
+            <i class="fas fa-wifi"></i>
+            <span id="connectionMessage">Connected to real-time data</span>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <script src="/static/js/websocket_client.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
