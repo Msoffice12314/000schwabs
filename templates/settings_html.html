@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Schwab AI Trading</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/components.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>Schwab AI Trading
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/portfolio">Portfolio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analysis">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/settings">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Settings Navigation -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Settings</h5>
+                    </div>
+                    <div class="list-group list-group-flush" id="settingsNav">
+                        <a href="#account" class="list-group-item list-group-item-action active" onclick="showSection('account')">
+                            <i class="fas fa-user me-2"></i>Account & API
+                        </a>
+                        <a href="#trading" class="list-group-item list-group-item-action" onclick="showSection('trading')">
+                            <i class="fas fa-chart-line me-2"></i>Trading Parameters
+                        </a>
+                        <a href="#ai-models" class="list-group-item list-group-item-action" onclick="showSection('ai-models')">
+                            <i class="fas fa-robot me-2"></i>AI Models
+                        </a>
+                        <a href="#risk" class="list-group-item list-group-item-action" onclick="showSection('risk')">
+                            <i class="fas fa-shield-alt me-2"></i>Risk Management
+                        </a>
+                        <a href="#notifications" class="list-group-item list-group-item-action" onclick="showSection('notifications')">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                        </a>
+                        <a href="#data" class="list-group-item list-group-item-action" onclick="showSection('data')">
+                            <i class="fas fa-database me-2"></i>Data & Privacy
+                        </a>
+                        <a href="#advanced" class="list-group-item list-group-item-action" onclick="showSection('advanced')">
+                            <i class="fas fa-tools me-2"></i>Advanced
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="col-md-9">
+                <!-- Account & API Settings -->
+                <div id="account-section" class="settings-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-user me-2"></i>Account & API Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="accountForm">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>Security Notice:</strong> API credentials are encrypted and stored securely. Never share your credentials.
+                                </div>
+                                
+                                <h6 class="mb-3">Schwab API Configuration</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">App Key</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="appKey" placeholder="Enter your Schwab App Key">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('appKey')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-text">
+                                            <a href="https://developer.schwab.com" target="_blank">Get your API key from Schwab Developer Portal</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">App Secret</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="appSecret" placeholder="Enter your App Secret">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('appSecret')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Account Number</label>
+                                        <input type="text" class="form-control" id="accountNumber" placeholder="Your Schwab account number">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Environment</label>
+                                        <select class="form-select" id="environment">
+                                            <option value="sandbox">Sandbox (Testing)</option>
+                                            <option value="production">Production (Live Trading)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Callback URL</label>
+                                    <input type="url" class="form-control" id="callbackUrl" placeholder="https://yourapp.com/callback">
+                                    <div class="form-text">Must match the URL configured in your Schwab Developer account</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary me-2" onclick="testApiConnection()">
+                                        <i class="fas fa-plug me-2"></i>Test Connection
+                                    </button>
+                                    <button type="button" class="btn btn-success" onclick="authenticateApi()">
+                                        <i class="fas fa-key me-2"></i>Authenticate with Schwab
+                                    </button>
+                                </div>
+
+                                <div id="apiStatus" class="mt-3"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trading Parameters -->
+                <div id="trading-section" class="settings-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Trading Parameters</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="tradingForm">
+                                <h6 class="mb-3">General Trading Settings</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Default Order Size</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="defaultOrderSize" min="1" step="1">
+                                            <span class="input-group-text">shares</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Max Position Size</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="maxPositionSize" min="0" step="0.01">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="form-text">Maximum % of portfolio per position</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Trading Session</label>
+                                        <select class="form-select" id="tradingSession">
+                                            <option value="market_hours">Market Hours Only</option>
+                                            <option value="extended_hours">Extended Hours</option>
+                                            <option value="24_7">24/7 Trading</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Order Types & Execution</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Preferred Order Type</label>
+                                        <select class="form-select" id="preferredOrderType">
+                                            <option value="MARKET">Market Order</option>
+                                            <option value="LIMIT">Limit Order</option>
+                                            <option value="STOP">Stop Order</option>
+                                            <option value="STOP_LIMIT">Stop Limit Order</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Order Duration</label>
+                                        <select class="form-select" id="orderDuration">
+                                            <option value="DAY">Day Order</option>
+                                            <option value="GTC">Good Till Cancelled</option>
+                                            <option value="IOC">Immediate or Cancel</option>
+                                            <option value="FOK">Fill or Kill</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Slippage Tolerance</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="slippageTolerance" min="0" max="10" step="0.1">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Execution Delay</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="executionDelay" min="0" max="300" step="1">
+                                            <span class="input-group-text">seconds</span>
+                                        </div>
+                                        <div class="form-text">Delay before executing AI recommendations</div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Automated Trading</h6>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enableAutoTrading">
+                                        <label class="form-check-label" for="enableAutoTrading">
+                                            Enable Automated Trading
+                                        </label>
+                                    </div>
+                                    <div class="form-text text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Automated trading will execute trades without manual confirmation
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Min AI Confidence for Auto-Trade</label>
+                                        <div class="input-group">
+                                            <input type="range" class="form-range" id="minConfidence" min="50" max="95" step="5">
+                                            <span class="input-group-text" id="minConfidenceValue">75%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Daily Trades</label>
+                                        <input type="number" class="form-control" id="maxDailyTrades" min="1" max="100" step="1">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Models Settings -->
+                <div id="ai-models-section" class="settings-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Models Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="aiModelsForm">
+                                <h6 class="mb-3">Active Models</h6>
+                                <div class="models-container" id="modelsContainer">
+                                    <!-- Models will be populated by JavaScript -->
+                                </div>
+
+                                <h6 class="mb-3 mt-4">Ensemble Settings</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ensemble Method</label>
+                                        <select class="form-select" id="ensembleMethod">
+                                            <option value="weighted_average">Weighted Average</option>
+                                            <option value="voting">Majority Voting</option>
+                                            <option value="stacking">Stacking</option>
+                                            <option value="best_performer">Best Performer</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Performance Window</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="performanceWindow" min="1" max="365" step="1">
+                                            <span class="input-group-text">days</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Training Settings</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Retrain Frequency</label>
+                                        <select class="form-select" id="retrainFrequency">
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                            <option value="manual">Manual Only</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Training Data Period</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="trainingDataPeriod" min="30" max="1825" step="1">
+                                            <span class="input-group-text">days</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Validation Split</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="validationSplit" min="0.1" max="0.5" step="0.05">
+                                            <span class="input-group-text">ratio</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary me-2" onclick="startTraining()">
+                                        <i class="fas fa-play me-2"></i>Start Training
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="exportModels()">
+                                        <i class="fas fa-download me-2"></i>Export Models
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Management -->
+                <div id="risk-section" class="settings-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Risk Management</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="riskForm">
+                                <h6 class="mb-3">Position Limits</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Portfolio Risk</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="maxPortfolioRisk" min="1" max="100" step="0.5">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="form-text">Maximum percentage of portfolio at risk</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Drawdown</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="maxDrawdown" min="1" max="50" step="0.5">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="form-text">Stop trading if portfolio drops by this amount</div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Stop Loss Settings</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Default Stop Loss</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="defaultStopLoss" min="0.5" max="20" step="0.1">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Trailing Stop</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="trailingStop" min="0.1" max="10" step="0.1">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Stop Loss Method</label>
+                                        <select class="form-select" id="stopLossMethod">
+                                            <option value="percentage">Percentage</option>
+                                            <option value="atr">ATR Based</option>
+                                            <option value="support_resistance">Support/Resistance</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Volatility Controls</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Stock Volatility</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="maxVolatility" min="10" max="200" step="5">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="form-text">Don't trade stocks with higher volatility</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">VIX Threshold</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="vixThreshold" min="10" max="80" step="1">
+                                            <span class="input-group-text">points</span>
+                                        </div>
+                                        <div class="form-text">Reduce trading when VIX exceeds this level</div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Emergency Controls</h6>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enableEmergencyStop">
+                                        <label class="form-check-label" for="enableEmergencyStop">
+                                            Enable Emergency Stop
+                                        </label>
+                                    </div>
+                                    <div class="form-text">Automatically halt all trading during market crashes</div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Market Drop Threshold</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="marketDropThreshold" min="1" max="20" step="0.5">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Circuit Breaker Level</label>
+                                        <select class="form-select" id="circuitBreakerLevel">
+                                            <option value="1">Level 1 (7% drop)</option>
+                                            <option value="2">Level 2 (13% drop)</option>
+                                            <option value="3">Level 3 (20% drop)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div id="notifications-section" class="settings-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notifications</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="notificationsForm">
+                                <h6 class="mb-3">Email Notifications</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="notificationEmail" placeholder="your@email.com">
+                                </div>
+
+                                <div class="notification-options">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifyTradeExecutions">
+                                        <label class="form-check-label" for="notifyTradeExecutions">
+                                            Trade Executions
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifyAiRecommendations">
+                                        <label class="form-check-label" for="notifyAiRecommendations">
+                                            AI Recommendations
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifyRiskAlerts">
+                                        <label class="form-check-label" for="notifyRiskAlerts">
+                                            Risk Management Alerts
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifySystemErrors">
+                                        <label class="form-check-label" for="notifySystemErrors">
+                                            System Errors
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifyDailyReports">
+                                        <label class="form-check-label" for="notifyDailyReports">
+                                            Daily Performance Reports
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3 mt-4">Push Notifications</h6>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-primary" onclick="requestNotificationPermission()">
+                                        <i class="fas fa-bell me-2"></i>Enable Browser Notifications
+                                    </button>
+                                </div>
+
+                                <h6 class="mb-3">Webhook Integration</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Webhook URL</label>
+                                    <input type="url" class="form-control" id="webhookUrl" placeholder="https://your-webhook.com/endpoint">
+                                    <div class="form-text">Send notifications to external services like Slack, Discord, etc.</div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data & Privacy -->
+                <div id="data-section" class="settings-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-database me-2"></i>Data & Privacy</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="dataForm">
+                                <h6 class="mb-3">Data Storage</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Data Retention Period</label>
+                                        <select class="form-select" id="dataRetention">
+                                            <option value="30">30 days</option>
+                                            <option value="90">90 days</option>
+                                            <option value="365">1 year</option>
+                                            <option value="1825">5 years</option>
+                                            <option value="-1">Forever</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Backup Frequency</label>
+                                        <select class="form-select" id="backupFrequency">
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Privacy Settings</h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="shareAnonymousData">
+                                    <label class="form-check-label" for="shareAnonymousData">
+                                        Share anonymous usage data to improve AI models
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enableLogging">
+                                    <label class="form-check-label" for="enableLogging">
+                                        Enable detailed logging for troubleshooting
+                                    </label>
+                                </div>
+
+                                <h6 class="mb-3 mt-4">Data Export</h6>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-primary me-2" onclick="exportUserData()">
+                                        <i class="fas fa-download me-2"></i>Export My Data
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" onclick="deleteUserData()">
+                                        <i class="fas fa-trash me-2"></i>Delete All Data
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings -->
+                <div id="advanced-section" class="settings-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Advanced Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Caution:</strong> These settings are for advanced users only. Incorrect configuration may affect system performance.
+                            </div>
+
+                            <form id="advancedForm">
+                                <h6 class="mb-3">System Configuration</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">API Rate Limit</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="apiRateLimit" min="1" max="1000" step="1">
+                                            <span class="input-group-text">requests/min</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">WebSocket Reconnect Interval</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="wsReconnectInterval" min="1" max="60" step="1">
+                                            <span class="input-group-text">seconds</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Database Settings</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Connection Pool Size</label>
+                                        <input type="number" class="form-control" id="dbPoolSize" min="1" max="50" step="1">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Query Timeout</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="queryTimeout" min="1" max="300" step="1">
+                                            <span class="input-group-text">seconds</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">Logging Configuration</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Log Level</label>
+                                        <select class="form-select" id="logLevel">
+                                            <option value="DEBUG">Debug</option>
+                                            <option value="INFO">Info</option>
+                                            <option value="WARNING">Warning</option>
+                                            <option value="ERROR">Error</option>
+                                            <option value="CRITICAL">Critical</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Log File Size</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="maxLogSize" min="1" max="1000" step="1">
+                                            <span class="input-group-text">MB</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3">System Maintenance</h6>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-warning me-2" onclick="clearCache()">
+                                        <i class="fas fa-broom me-2"></i>Clear Cache
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info me-2" onclick="resetSettings()">
+                                        <i class="fas fa-undo me-2"></i>Reset to Defaults
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="exportSettings()">
+                                        <i class="fas fa-file-export me-2"></i>Export Settings
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Settings Button -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <button type="button" class="btn btn-success btn-lg me-2" onclick="saveAllSettings()">
+                    <i class="fas fa-save me-2"></i>Save All Settings
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="resetAllSettings()">
+                    <i class="fas fa-undo me-2"></i>Reset All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3">Saving settings...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/websocket_client.js"></script>
+    <script src="/static/js/trading_interface.js"></script>
+
+    <script>
+        // Settings Management JavaScript
+        let currentSettings = {};
+
+        // Initialize settings page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllSettings();
+            setupEventListeners();
+        });
+
+        function loadAllSettings() {
+            showLoading(true);
+            fetch('/api/settings')
+                .then(response => response.json())
+                .then(data => {
+                    currentSettings = data;
+                    populateSettingsForms();
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error loading settings:', error);
+                    showError('Failed to load settings');
+                    showLoading(false);
+                });
+        }
+
+        function populateSettingsForms() {
+            // Populate all form fields with current settings
+            if (currentSettings.account) {
+                populateFormSection('account', currentSettings.account);
+            }
+            if (currentSettings.trading) {
+                populateFormSection('trading', currentSettings.trading);
+            }
+            if (currentSettings.ai_models) {
+                populateAIModelsSection(currentSettings.ai_models);
+            }
+            if (currentSettings.risk) {
+                populateFormSection('risk', currentSettings.risk);
+            }
+            if (currentSettings.notifications) {
+                populateFormSection('notifications', currentSettings.notifications);
+            }
+            if (currentSettings.data) {
+                populateFormSection('data', currentSettings.data);
+            }
+            if (currentSettings.advanced) {
+                populateFormSection('advanced', currentSettings.advanced);
+            }
+        }
+
+        function populateFormSection(section, data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = data[key];
+                    } else if (element.type === 'range') {
+                        element.value = data[key];
+                        updateRangeDisplay(element);
+                    } else {
+                        element.value = data[key];
+                    }
+                }
+            });
+        }
+
+        function populateAIModelsSection(data) {
+            const container = document.getElementById('modelsContainer');
+            container.innerHTML = '';
+
+            if (data.models) {
+                data.models.forEach(model => {
+                    const modelCard = createModelCard(model);
+                    container.appendChild(modelCard);
+                });
+            }
+
+            // Populate ensemble settings
+            if (data.ensemble) {
+                populateFormSection('ai-models', data.ensemble);
+            }
+        }
+
+        function createModelCard(model) {
+            const div = document.createElement('div');
+            div.className = 'model-card mb-3';
+            div.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h6 class="mb-1">${model.name}</h6>
+                                <small class="text-muted">${model.type}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="model_${model.id}" 
+                                           ${model.enabled ? 'checked' : ''}>
+                                    <label class="form-check-label" for="model_${model.id}">
+                                        ${model.enabled ? 'Enabled' : 'Disabled'}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Weight</label>
+                                <input type="range" class="form-range" id="weight_${model.id}" 
+                                       min="0" max="1" step="0.1" value="${model.weight}">
+                                <span class="weight-value">${model.weight}</span>
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">Accuracy</small><br>
+                                <strong>${model.accuracy}%</strong>
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">Last Trained</small><br>
+                                <strong>${new Date(model.lastTrained).toLocaleDateString()}</strong>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="configureModel('${model.id}')">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners for the model card
+            const weightRange = div.querySelector(`#weight_${model.id}`);
+            const weightValue = div.querySelector('.weight-value');
+            weightRange.addEventListener('input', function() {
+                weightValue.textContent = this.value;
+            });
+
+            return div;
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.settings-section');
+            sections.forEach(section => section.style.display = 'none');
+
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).style.display = 'block';
+
+            // Update navigation
+            const navItems = document.querySelectorAll('#settingsNav .list-group-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            document.querySelector(`[href="#${sectionName}"]`).classList.add('active');
+        }
+
+        function setupEventListeners() {
+            // Min confidence range slider
+            const minConfidenceRange = document.getElementById('minConfidence');
+            const minConfidenceValue = document.getElementById('minConfidenceValue');
+            if (minConfidenceRange) {
+                minConfidenceRange.addEventListener('input', function() {
+                    minConfidenceValue.textContent = this.value + '%';
+                });
+            }
+
+            // Auto-trading toggle warning
+            const autoTradingToggle = document.getElementById('enableAutoTrading');
+            if (autoTradingToggle) {
+                autoTradingToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        if (!confirm('Enabling automated trading will allow the system to execute trades without manual confirmation. Are you sure?')) {
+                            this.checked = false;
+                        }
+                    }
+                });
+            }
+        }
+
+        function testApiConnection() {
+            const appKey = document.getElementById('appKey').value;
+            const environment = document.getElementById('environment').value;
+
+            if (!appKey) {
+                showError('Please enter your App Key first');
+                return;
+            }
+
+            const statusDiv = document.getElementById('apiStatus');
+            statusDiv.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div>Testing connection...';
+
+            fetch('/api/test-connection', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({appKey, environment})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check me-2"></i>Connection successful!</div>';
+                } else {
+                    statusDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Connection failed: ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Connection test failed</div>';
+            });
+        }
+
+        function authenticateApi() {
+            const appKey = document.getElementById('appKey').value;
+            const callbackUrl = document.getElementById('callbackUrl').value;
+
+            if (!appKey || !callbackUrl) {
+                showError('Please enter App Key and Callback URL first');
+                return;
+            }
+
+            // Redirect to Schwab OAuth
+            const authUrl = `https://api.schwabapi.com/oauth/authorize?client_id=${appKey}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code`;
+            window.open(authUrl, 'schwab-auth', 'width=600,height=400');
+        }
+
+        function startTraining() {
+            if (!confirm('Model training may take several hours and will consume significant computational resources. Continue?')) {
+                return;
+            }
+
+            showLoading(true);
+            fetch('/api/ai/train', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Model training started. You will be notified when complete.');
+                    } else {
+                        showError(data.message || 'Failed to start training');
+                    }
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Training error:', error);
+                    showError('Failed to start training');
+                    showLoading(false);
+                });
+        }
+
+        function exportModels() {
+            fetch('/api/ai/export/models')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `ai_models_${new Date().toISOString().split('T')[0]}.zip`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    showError('Failed to export models');
+                });
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showSuccess('Browser notifications enabled');
+                    } else {
+                        showError('Notification permission denied');
+                    }
+                });
+            } else {
+                showError('Browser notifications not supported');
+            }
+        }
+
+        function exportUserData() {
+            fetch('/api/user/export')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `user_data_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    showError('Failed to export user data');
+                });
+        }
+
+        function deleteUserData() {
+            if (!confirm('This will permanently delete all your data. This action cannot be undone. Are you sure?')) {
+                return;
+            }
+
+            const confirmText = prompt('Type "DELETE" to confirm:');
+            if (confirmText !== 'DELETE') {
+                return;
+            }
+
+            fetch('/api/user/delete', {method: 'DELETE'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('All user data deleted');
+                        setTimeout(() => window.location.href = '/', 2000);
+                    } else {
+                        showError(data.message || 'Failed to delete data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    showError('Failed to delete user data');
+                });
+        }
+
+        function clearCache() {
+            fetch('/api/system/clear-cache', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Cache cleared successfully');
+                    } else {
+                        showError(data.message || 'Failed to clear cache');
+                    }
+                })
+                .catch(error => {
+                    console.error('Cache clear error:', error);
+                    showError('Failed to clear cache');
+                });
+        }
+
+        function resetSettings() {
+            if (!confirm('Reset all settings to default values?')) {
+                return;
+            }
+
+            fetch('/api/settings/reset', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Settings reset to defaults');
+                        loadAllSettings();
+                    } else {
+                        showError(data.message || 'Failed to reset settings');
+                    }
+                })
+                .catch(error => {
+                    console.error('Reset error:', error);
+                    showError('Failed to reset settings');
+                });
+        }
+
+        function exportSettings() {
+            fetch('/api/settings/export')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `settings_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    showError('Failed to export settings');
+                });
+        }
+
+        function saveAllSettings() {
+            showLoading(true);
+            
+            const allSettings = {
+                account: collectFormData('accountForm'),
+                trading: collectFormData('tradingForm'),
+                ai_models: collectAIModelsData(),
+                risk: collectFormData('riskForm'),
+                notifications: collectFormData('notificationsForm'),
+                data: collectFormData('dataForm'),
+                advanced: collectFormData('advancedForm')
+            };
+
+            fetch('/api/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(allSettings)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess('All settings saved successfully');
+                    currentSettings = allSettings;
+                } else {
+                    showError(data.message || 'Failed to save settings');
+                }
+                showLoading(false);
+            })
+            .catch(error => {
+                console.error('Save error:', error);
+                showError('Failed to save settings');
+                showLoading(false);
+            });
+        }
+
+        function collectFormData(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return {};
+
+            const formData = new FormData(form);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        data[key] = input.checked;
+                    } else if (input.type === 'number' || input.type === 'range') {
+                        data[key] = parseFloat(value);
+                    } else {
+                        data[key] = value;
+                    }
+                }
+            }
+
+            return data;
+        }
+
+        function collectAIModelsData() {
+            const models = [];
+            const modelCards = document.querySelectorAll('.model-card');
+            
+            modelCards.forEach(card => {
+                const modelId = card.querySelector('[id^="model_"]').id.replace('model_', '');
+                const enabled = card.querySelector(`#model_${modelId}`).checked;
+                const weight = parseFloat(card.querySelector(`#weight_${modelId}`).value);
+                
+                models.push({id: modelId, enabled, weight});
+            });
+
+            return {
+                models,
+                ensemble: collectFormData('aiModelsForm')
+            };
+        }
+
+        function resetAllSettings() {
+            if (!confirm('Reset all settings to default values? This will reload the page.')) {
+                return;
+            }
+            
+            resetSettings();
+        }
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        function updateRangeDisplay(rangeElement) {
+            const valueSpan = rangeElement.parentElement.querySelector('.range-value');
+            if (valueSpan) {
+                valueSpan.textContent = rangeElement.value + '%';
+            }
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function showSuccess(message) {
+            // Implement success notification
+            alert('Success: ' + message);
+        }
+
+        function showError(message) {
+            // Implement error notification
+            alert('Error: ' + message);
+        }
+    </script>
+</body>
+</html>

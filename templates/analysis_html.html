@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analysis - Schwab AI Trading</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/components.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>Schwab AI Trading
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/portfolio">Portfolio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/analysis">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/settings">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- AI Models Status -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card ai-models-status">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-robot me-2"></i>AI Models Status</h4>
+                        <div class="model-controls">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="refreshModels()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="runFullAnalysis()">
+                                <i class="fas fa-play"></i> Run Analysis
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="modelsStatusRow">
+                            <!-- Model status cards will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Sentiment & AI Predictions -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>Market Sentiment Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="sentiment-gauge">
+                            <canvas id="sentimentGauge" width="300" height="200"></canvas>
+                        </div>
+                        <div class="sentiment-details mt-3">
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <div class="sentiment-metric">
+                                        <div class="metric-value text-success" id="bullishSentiment">0%</div>
+                                        <div class="metric-label">Bullish</div>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="sentiment-metric">
+                                        <div class="metric-value text-warning" id="neutralSentiment">0%</div>
+                                        <div class="metric-label">Neutral</div>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="sentiment-metric">
+                                        <div class="metric-value text-danger" id="bearishSentiment">0%</div>
+                                        <div class="metric-label">Bearish</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-crystal-ball me-2"></i>AI Predictions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="prediction-timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">1 Day Outlook</div>
+                                    <div class="timeline-value" id="prediction1Day">Analyzing...</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-warning"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">1 Week Outlook</div>
+                                    <div class="timeline-value" id="prediction1Week">Analyzing...</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-info"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">1 Month Outlook</div>
+                                    <div class="timeline-value" id="prediction1Month">Analyzing...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Recommendations -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>AI Trading Recommendations</h5>
+                        <div class="recommendation-filters">
+                            <select class="form-select form-select-sm me-2" id="confidenceFilter">
+                                <option value="">All Confidence Levels</option>
+                                <option value="high">High Confidence (80%+)</option>
+                                <option value="medium">Medium Confidence (60-80%)</option>
+                                <option value="low">Low Confidence (<60%)</option>
+                            </select>
+                            <select class="form-select form-select-sm" id="actionFilter">
+                                <option value="">All Actions</option>
+                                <option value="BUY">Buy Recommendations</option>
+                                <option value="SELL">Sell Recommendations</option>
+                                <option value="HOLD">Hold Recommendations</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="recommendations-container" id="recommendationsContainer">
+                            <!-- Recommendations will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Analysis -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Technical Analysis</h5>
+                        <div class="symbol-selector">
+                            <select class="form-select form-select-sm" id="symbolSelector">
+                                <option value="">Select Symbol</option>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="technical-chart-container">
+                            <canvas id="technicalChart" height="400"></canvas>
+                        </div>
+                        <div class="technical-indicators mt-3">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="indicator-card">
+                                        <div class="indicator-label">RSI (14)</div>
+                                        <div class="indicator-value" id="rsiValue">--</div>
+                                        <div class="indicator-signal" id="rsiSignal">--</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="indicator-card">
+                                        <div class="indicator-label">MACD</div>
+                                        <div class="indicator-value" id="macdValue">--</div>
+                                        <div class="indicator-signal" id="macdSignal">--</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="indicator-card">
+                                        <div class="indicator-label">Bollinger Bands</div>
+                                        <div class="indicator-value" id="bbValue">--</div>
+                                        <div class="indicator-signal" id="bbSignal">--</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="indicator-card">
+                                        <div class="indicator-label">Moving Avg</div>
+                                        <div class="indicator-value" id="maValue">--</div>
+                                        <div class="indicator-signal" id="maSignal">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>News Impact</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="news-sentiment" id="newsSentiment">
+                            <!-- News sentiment analysis will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Performance -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Model Performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Model Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="model-config" id="modelConfig">
+                            <!-- Model configuration will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Details Modal -->
+    <div class="modal fade" id="analysisModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analysisModalTitle">Detailed Analysis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="analysisDetails">
+                        <!-- Detailed analysis content will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="exportAnalysis()">Export Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3">Running AI analysis...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="/static/js/websocket_client.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/trading_interface.js"></script>
+
+    <script>
+        // AI Analysis JavaScript
+        let analysisData = {};
+        let technicalChart = null;
+        let performanceChart = null;
+        let sentimentGauge = null;
+
+        // Initialize analysis view
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAnalysis();
+            connectWebSocket();
+            startAnalysisRefresh();
+        });
+
+        function initializeAnalysis() {
+            showLoading(true);
+            loadAnalysisData();
+            initializeCharts();
+            setupEventListeners();
+        }
+
+        function loadAnalysisData() {
+            Promise.all([
+                fetch('/api/ai/models/status').then(r => r.json()),
+                fetch('/api/ai/sentiment').then(r => r.json()),
+                fetch('/api/ai/predictions').then(r => r.json()),
+                fetch('/api/ai/recommendations').then(r => r.json()),
+                fetch('/api/ai/performance').then(r => r.json())
+            ])
+            .then(([models, sentiment, predictions, recommendations, performance]) => {
+                analysisData = {
+                    models,
+                    sentiment,
+                    predictions,
+                    recommendations,
+                    performance
+                };
+                updateAnalysisDisplay();
+                showLoading(false);
+            })
+            .catch(error => {
+                console.error('Error loading analysis data:', error);
+                showError('Failed to load AI analysis data');
+                showLoading(false);
+            });
+        }
+
+        function updateAnalysisDisplay() {
+            updateModelsStatus();
+            updateSentimentAnalysis();
+            updatePredictions();
+            updateRecommendations();
+            updatePerformanceChart();
+        }
+
+        function updateModelsStatus() {
+            if (!analysisData.models) return;
+
+            const container = document.getElementById('modelsStatusRow');
+            container.innerHTML = '';
+
+            analysisData.models.forEach(model => {
+                const col = document.createElement('div');
+                col.className = 'col-md-3';
+                col.innerHTML = `
+                    <div class="model-status-card ${model.status === 'active' ? 'active' : 'inactive'}">
+                        <div class="model-icon">
+                            <i class="fas ${getModelIcon(model.type)}"></i>
+                        </div>
+                        <div class="model-info">
+                            <div class="model-name">${model.name}</div>
+                            <div class="model-type">${model.type}</div>
+                            <div class="model-accuracy">Accuracy: ${model.accuracy}%</div>
+                            <div class="model-status">
+                                <span class="badge ${model.status === 'active' ? 'bg-success' : 'bg-secondary'}">
+                                    ${model.status}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        function getModelIcon(type) {
+            switch(type) {
+                case 'LSTM': return 'fa-network-wired';
+                case 'BiConNet': return 'fa-project-diagram';
+                case 'Transformer': return 'fa-magic';
+                case 'RandomForest': return 'fa-tree';
+                default: return 'fa-cog';
+            }
+        }
+
+        function updateSentimentAnalysis() {
+            if (!analysisData.sentiment) return;
+
+            const sentiment = analysisData.sentiment;
+            document.getElementById('bullishSentiment').textContent = `${sentiment.bullish}%`;
+            document.getElementById('neutralSentiment').textContent = `${sentiment.neutral}%`;
+            document.getElementById('bearishSentiment').textContent = `${sentiment.bearish}%`;
+
+            // Update sentiment gauge
+            updateSentimentGauge(sentiment.overall);
+        }
+
+        function updateSentimentGauge(overallSentiment) {
+            const canvas = document.getElementById('sentimentGauge');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw gauge
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height - 20;
+            const radius = 80;
+            
+            // Background arc
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, 0);
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = '#e9ecef';
+            ctx.stroke();
+            
+            // Sentiment arc
+            const sentimentAngle = Math.PI * (overallSentiment + 1) / 2; // Convert -1 to 1 range to 0 to PI
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, sentimentAngle);
+            ctx.strokeStyle = getSentimentColor(overallSentiment);
+            ctx.stroke();
+            
+            // Needle
+            const needleAngle = sentimentAngle - Math.PI/2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(
+                centerX + Math.cos(needleAngle) * (radius - 10),
+                centerY + Math.sin(needleAngle) * (radius - 10)
+            );
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#343a40';
+            ctx.stroke();
+            
+            // Center circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
+            ctx.fillStyle = '#343a40';
+            ctx.fill();
+            
+            // Sentiment text
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = getSentimentColor(overallSentiment);
+            ctx.fillText(getSentimentLabel(overallSentiment), centerX, centerY + 30);
+        }
+
+        function getSentimentColor(sentiment) {
+            if (sentiment > 0.3) return '#28a745';
+            if (sentiment < -0.3) return '#dc3545';
+            return '#ffc107';
+        }
+
+        function getSentimentLabel(sentiment) {
+            if (sentiment > 0.3) return 'Bullish';
+            if (sentiment < -0.3) return 'Bearish';
+            return 'Neutral';
+        }
+
+        function updatePredictions() {
+            if (!analysisData.predictions) return;
+
+            const predictions = analysisData.predictions;
+            document.getElementById('prediction1Day').textContent = formatPrediction(predictions.day1);
+            document.getElementById('prediction1Week').textContent = formatPrediction(predictions.week1);
+            document.getElementById('prediction1Month').textContent = formatPrediction(predictions.month1);
+        }
+
+        function formatPrediction(prediction) {
+            if (!prediction) return 'N/A';
+            const direction = prediction.direction === 'up' ? '↗' : prediction.direction === 'down' ? '↘' : '→';
+            return `${direction} ${prediction.magnitude.toFixed(1)}% (${prediction.confidence}% conf.)`;
+        }
+
+        function updateRecommendations() {
+            if (!analysisData.recommendations) return;
+
+            const container = document.getElementById('recommendationsContainer');
+            container.innerHTML = '';
+
+            analysisData.recommendations.forEach(rec => {
+                const recElement = createRecommendationElement(rec);
+                container.appendChild(recElement);
+            });
+        }
+
+        function createRecommendationElement(rec) {
+            const div = document.createElement('div');
+            div.className = 'recommendation-item';
+            div.innerHTML = `
+                <div class="rec-header">
+                    <div class="rec-symbol">
+                        <strong>${rec.symbol}</strong>
+                        <span class="rec-price">${formatCurrency(rec.currentPrice)}</span>
+                    </div>
+                    <div class="rec-action">
+                        <span class="badge ${getActionBadgeClass(rec.action)} me-2">
+                            ${rec.action}
+                        </span>
+                        <span class="confidence-badge">
+                            ${rec.confidence}% confidence
+                        </span>
+                    </div>
+                </div>
+                <div class="rec-body">
+                    <div class="rec-reasoning">
+                        <strong>AI Reasoning:</strong> ${rec.reasoning}
+                    </div>
+                    <div class="rec-metrics">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <small class="text-muted">Target Price:</small><br>
+                                <strong>${formatCurrency(rec.targetPrice)}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Stop Loss:</small><br>
+                                <strong>${formatCurrency(rec.stopLoss)}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Expected Return:</small><br>
+                                <strong class="${rec.expectedReturn >= 0 ? 'text-success' : 'text-danger'}">
+                                    ${rec.expectedReturn.toFixed(2)}%
+                                </strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Risk Score:</small><br>
+                                <strong class="${getRiskScoreClass(rec.riskScore)}">
+                                    ${rec.riskScore.toFixed(1)}/10
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rec-actions">
+                        <button class="btn btn-sm btn-outline-primary me-2" 
+                                onclick="viewDetailedAnalysis('${rec.symbol}')">
+                            <i class="fas fa-search"></i> Detailed Analysis
+                        </button>
+                        <button class="btn btn-sm btn-success" 
+                                onclick="executeRecommendation('${rec.id}')">
+                            <i class="fas fa-play"></i> Execute Trade
+                        </button>
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+
+        function getActionBadgeClass(action) {
+            switch(action) {
+                case 'BUY': return 'bg-success';
+                case 'SELL': return 'bg-danger';
+                case 'HOLD': return 'bg-secondary';
+                default: return 'bg-primary';
+            }
+        }
+
+        function getRiskScoreClass(score) {
+            if (score <= 3) return 'text-success';
+            if (score <= 7) return 'text-warning';
+            return 'text-danger';
+        }
+
+        function refreshModels() {
+            showLoading(true);
+            loadAnalysisData();
+        }
+
+        function runFullAnalysis() {
+            showLoading(true);
+            fetch('/api/ai/analyze/full', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Full AI analysis initiated');
+                        setTimeout(loadAnalysisData, 2000); // Reload data after analysis
+                    } else {
+                        showError(data.message || 'Analysis failed');
+                        showLoading(false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Analysis error:', error);
+                    showError('Failed to run analysis');
+                    showLoading(false);
+                });
+        }
+
+        function viewDetailedAnalysis(symbol) {
+            fetch(`/api/ai/analysis/${symbol}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('analysisModalTitle').textContent = `Detailed Analysis - ${symbol}`;
+                    document.getElementById('analysisDetails').innerHTML = formatDetailedAnalysis(data);
+                    new bootstrap.Modal(document.getElementById('analysisModal')).show();
+                })
+                .catch(error => {
+                    console.error('Error loading detailed analysis:', error);
+                    showError('Failed to load detailed analysis');
+                });
+        }
+
+        function formatDetailedAnalysis(data) {
+            return `
+                <div class="detailed-analysis">
+                    <div class="analysis-section">
+                        <h6>Technical Indicators</h6>
+                        <div class="indicators-grid">
+                            ${Object.entries(data.technical || {}).map(([key, value]) => 
+                                `<div class="indicator-item">
+                                    <span class="indicator-name">${key}:</span>
+                                    <span class="indicator-value">${value}</span>
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="analysis-section">
+                        <h6>Fundamental Analysis</h6>
+                        <div class="fundamentals-grid">
+                            ${Object.entries(data.fundamental || {}).map(([key, value]) => 
+                                `<div class="fundamental-item">
+                                    <span class="fundamental-name">${key}:</span>
+                                    <span class="fundamental-value">${value}</span>
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="analysis-section">
+                        <h6>AI Model Predictions</h6>
+                        <div class="predictions-list">
+                            ${(data.predictions || []).map(pred => 
+                                `<div class="prediction-item">
+                                    <span class="model-name">${pred.model}:</span>
+                                    <span class="prediction-value">${pred.prediction}</span>
+                                    <span class="prediction-confidence">(${pred.confidence}%)</span>
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function executeRecommendation(recId) {
+            if (!confirm('This will execute a trade based on AI recommendation. Continue?')) {
+                return;
+            }
+
+            fetch(`/api/ai/execute/${recId}`, {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Trade executed successfully');
+                        loadAnalysisData();
+                    } else {
+                        showError(data.message || 'Trade execution failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Execution error:', error);
+                    showError('Failed to execute trade');
+                });
+        }
+
+        function exportAnalysis() {
+            fetch('/api/ai/export/analysis')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `ai_analysis_${new Date().toISOString().split('T')[0]}.pdf`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    showError('Failed to export analysis');
+                });
+        }
+
+        function setupEventListeners() {
+            // Symbol selector for technical analysis
+            document.getElementById('symbolSelector').addEventListener('change', function() {
+                if (this.value) {
+                    loadTechnicalAnalysis(this.value);
+                }
+            });
+
+            // Recommendation filters
+            document.getElementById('confidenceFilter').addEventListener('change', filterRecommendations);
+            document.getElementById('actionFilter').addEventListener('change', filterRecommendations);
+        }
+
+        function loadTechnicalAnalysis(symbol) {
+            fetch(`/api/technical/${symbol}`)
+                .then(response => response.json())
+                .then(data => {
+                    updateTechnicalChart(data);
+                    updateTechnicalIndicators(data.indicators);
+                })
+                .catch(error => {
+                    console.error('Error loading technical analysis:', error);
+                });
+        }
+
+        function updateTechnicalChart(data) {
+            // Update technical chart implementation
+            // This would integrate with charts.js
+        }
+
+        function updateTechnicalIndicators(indicators) {
+            if (!indicators) return;
+
+            document.getElementById('rsiValue').textContent = indicators.rsi?.toFixed(2) || '--';
+            document.getElementById('macdValue').textContent = indicators.macd?.toFixed(4) || '--';
+            document.getElementById('bbValue').textContent = indicators.bb_position || '--';
+            document.getElementById('maValue').textContent = indicators.ma_signal || '--';
+
+            // Update signals
+            document.getElementById('rsiSignal').textContent = getIndicatorSignal(indicators.rsi, 'rsi');
+            document.getElementById('macdSignal').textContent = indicators.macd_signal || '--';
+            document.getElementById('bbSignal').textContent = indicators.bb_signal || '--';
+            document.getElementById('maSignal').textContent = indicators.ma_signal || '--';
+        }
+
+        function getIndicatorSignal(value, type) {
+            if (type === 'rsi') {
+                if (value > 70) return 'Overbought';
+                if (value < 30) return 'Oversold';
+                return 'Neutral';
+            }
+            return '--';
+        }
+
+        function filterRecommendations() {
+            const confidenceFilter = document.getElementById('confidenceFilter').value;
+            const actionFilter = document.getElementById('actionFilter').value;
+
+            const recommendations = document.querySelectorAll('.recommendation-item');
+            recommendations.forEach(rec => {
+                let show = true;
+
+                // Apply filters (implementation would depend on data structure)
+                // This is a simplified version
+                rec.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        function startAnalysisRefresh() {
+            // Refresh analysis data every 60 seconds
+            setInterval(() => {
+                if (!document.hidden) {
+                    loadAnalysisData();
+                }
+            }, 60000);
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function showSuccess(message) {
+            // Implement success notification
+            alert('Success: ' + message);
+        }
+
+        function showError(message) {
+            // Implement error notification
+            alert('Error: ' + message);
+        }
+    </script>
+</body>
+</html>

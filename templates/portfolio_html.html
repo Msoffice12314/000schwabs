@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Management - Schwab AI Trading</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/components.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>Schwab AI Trading
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/portfolio">Portfolio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analysis">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/settings">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Portfolio Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card portfolio-overview">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-wallet me-2"></i>Portfolio Overview</h4>
+                        <div class="portfolio-controls">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="refreshPortfolio()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#rebalanceModal">
+                                <i class="fas fa-balance-scale"></i> Rebalance
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Value</div>
+                                    <div class="metric-value" id="totalValue">$0.00</div>
+                                    <div class="metric-change" id="totalChange">+$0.00 (0.00%)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Buying Power</div>
+                                    <div class="metric-value" id="buyingPower">$0.00</div>
+                                    <div class="metric-subtitle">Available for trading</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Day's Gain/Loss</div>
+                                    <div class="metric-value" id="dayGainLoss">$0.00</div>
+                                    <div class="metric-change" id="dayGainLossPercent">(0.00%)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Gain/Loss</div>
+                                    <div class="metric-value" id="totalGainLoss">$0.00</div>
+                                    <div class="metric-change" id="totalGainLossPercent">(0.00%)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Allocation -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Portfolio Allocation</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="allocationChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Holdings Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Current Holdings</h5>
+                        <div class="table-controls">
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" placeholder="Search holdings..." id="holdingsSearch">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="holdingsTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Shares</th>
+                                        <th>Avg Cost</th>
+                                        <th>Current Price</th>
+                                        <th>Market Value</th>
+                                        <th>Gain/Loss</th>
+                                        <th>% Change</th>
+                                        <th>AI Score</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="holdingsBody">
+                                    <!-- Holdings will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Orders</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0" id="ordersTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Symbol</th>
+                                        <th>Action</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>AI Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersBody">
+                                    <!-- Recent orders will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rebalance Modal -->
+    <div class="modal fade" id="rebalanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-balance-scale me-2"></i>Portfolio Rebalancing</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Risk Warning:</strong> Automated rebalancing involves trading decisions. Please review all recommendations carefully before proceeding.
+                    </div>
+                    <div id="rebalanceRecommendations">
+                        <!-- AI recommendations will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="executeRebalance()">Execute Rebalancing</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Modal -->
+    <div class="modal fade" id="tradeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tradeModalTitle">Execute Trade</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="tradeForm">
+                        <input type="hidden" id="tradeSymbol">
+                        <div class="mb-3">
+                            <label class="form-label">Action</label>
+                            <select class="form-select" id="tradeAction" required>
+                                <option value="">Select Action</option>
+                                <option value="BUY">Buy</option>
+                                <option value="SELL">Sell</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="tradeQuantity" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Order Type</label>
+                            <select class="form-select" id="tradeOrderType" required>
+                                <option value="MARKET">Market Order</option>
+                                <option value="LIMIT">Limit Order</option>
+                                <option value="STOP">Stop Order</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="limitPriceGroup" style="display: none;">
+                            <label class="form-label">Limit Price</label>
+                            <input type="number" class="form-control" id="tradeLimitPrice" step="0.01">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitTrade()">Place Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3">Loading portfolio data...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="/static/js/websocket_client.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/trading_interface.js"></script>
+
+    <script>
+        // Portfolio Management JavaScript
+        let portfolioData = {};
+        let allocationChart = null;
+        let performanceChart = null;
+
+        // Initialize portfolio view
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePortfolio();
+            connectWebSocket();
+            startDataRefresh();
+        });
+
+        function initializePortfolio() {
+            showLoading(true);
+            loadPortfolioData();
+            initializeCharts();
+            setupEventListeners();
+        }
+
+        function loadPortfolioData() {
+            fetch('/api/portfolio')
+                .then(response => response.json())
+                .then(data => {
+                    portfolioData = data;
+                    updatePortfolioDisplay();
+                    updateHoldingsTable();
+                    updateRecentOrders();
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error loading portfolio:', error);
+                    showError('Failed to load portfolio data');
+                    showLoading(false);
+                });
+        }
+
+        function updatePortfolioDisplay() {
+            if (!portfolioData.overview) return;
+
+            const overview = portfolioData.overview;
+            document.getElementById('totalValue').textContent = formatCurrency(overview.totalValue);
+            document.getElementById('buyingPower').textContent = formatCurrency(overview.buyingPower);
+            document.getElementById('dayGainLoss').textContent = formatCurrency(overview.dayGainLoss);
+            document.getElementById('totalGainLoss').textContent = formatCurrency(overview.totalGainLoss);
+
+            // Update change indicators
+            updateChangeIndicator('totalChange', overview.totalChange, overview.totalChangePercent);
+            updateChangeIndicator('dayGainLossPercent', overview.dayGainLoss, overview.dayGainLossPercent);
+            updateChangeIndicator('totalGainLossPercent', overview.totalGainLoss, overview.totalGainLossPercent);
+
+            // Update charts
+            updateAllocationChart();
+            updatePerformanceChart();
+        }
+
+        function updateChangeIndicator(elementId, value, percent) {
+            const element = document.getElementById(elementId);
+            const isPositive = value >= 0;
+            element.textContent = `${isPositive ? '+' : ''}${formatCurrency(value)} (${percent.toFixed(2)}%)`;
+            element.className = `metric-change ${isPositive ? 'positive' : 'negative'}`;
+        }
+
+        function updateHoldingsTable() {
+            if (!portfolioData.holdings) return;
+
+            const tbody = document.getElementById('holdingsBody');
+            tbody.innerHTML = '';
+
+            portfolioData.holdings.forEach(holding => {
+                const row = createHoldingRow(holding);
+                tbody.appendChild(row);
+            });
+        }
+
+        function createHoldingRow(holding) {
+            const row = document.createElement('tr');
+            const gainLoss = holding.marketValue - (holding.quantity * holding.avgCost);
+            const gainLossPercent = ((holding.currentPrice - holding.avgCost) / holding.avgCost) * 100;
+            const isPositive = gainLoss >= 0;
+
+            row.innerHTML = `
+                <td>
+                    <strong>${holding.symbol}</strong>
+                    <br><small class="text-muted">${holding.description || ''}</small>
+                </td>
+                <td>${holding.quantity.toLocaleString()}</td>
+                <td>${formatCurrency(holding.avgCost)}</td>
+                <td>${formatCurrency(holding.currentPrice)}</td>
+                <td>${formatCurrency(holding.marketValue)}</td>
+                <td class="${isPositive ? 'text-success' : 'text-danger'}">
+                    ${isPositive ? '+' : ''}${formatCurrency(gainLoss)}
+                </td>
+                <td class="${isPositive ? 'text-success' : 'text-danger'}">
+                    ${isPositive ? '+' : ''}${gainLossPercent.toFixed(2)}%
+                </td>
+                <td>
+                    <span class="badge ${getAIScoreBadgeClass(holding.aiScore)}">
+                        ${holding.aiScore.toFixed(1)}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="openTradeModal('${holding.symbol}', 'BUY')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="openTradeModal('${holding.symbol}', 'SELL')">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            return row;
+        }
+
+        function getAIScoreBadgeClass(score) {
+            if (score >= 8) return 'bg-success';
+            if (score >= 6) return 'bg-warning';
+            if (score >= 4) return 'bg-secondary';
+            return 'bg-danger';
+        }
+
+        function updateRecentOrders() {
+            if (!portfolioData.recentOrders) return;
+
+            const tbody = document.getElementById('ordersBody');
+            tbody.innerHTML = '';
+
+            portfolioData.recentOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(order.date).toLocaleDateString()}</td>
+                    <td>${order.symbol}</td>
+                    <td>
+                        <span class="badge ${order.action === 'BUY' ? 'bg-success' : 'bg-danger'}">
+                            ${order.action}
+                        </span>
+                    </td>
+                    <td>${order.quantity.toLocaleString()}</td>
+                    <td>${formatCurrency(order.price)}</td>
+                    <td>
+                        <span class="badge ${getOrderStatusBadgeClass(order.status)}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td>${order.aiConfidence ? order.aiConfidence.toFixed(1) + '%' : 'N/A'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getOrderStatusBadgeClass(status) {
+            switch(status) {
+                case 'FILLED': return 'bg-success';
+                case 'PENDING': return 'bg-warning';
+                case 'CANCELLED': return 'bg-secondary';
+                case 'REJECTED': return 'bg-danger';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function refreshPortfolio() {
+            showLoading(true);
+            loadPortfolioData();
+        }
+
+        function openTradeModal(symbol, action = '') {
+            document.getElementById('tradeSymbol').value = symbol;
+            document.getElementById('tradeModalTitle').textContent = `Trade ${symbol}`;
+            if (action) {
+                document.getElementById('tradeAction').value = action;
+            }
+            new bootstrap.Modal(document.getElementById('tradeModal')).show();
+        }
+
+        function submitTrade() {
+            const formData = {
+                symbol: document.getElementById('tradeSymbol').value,
+                action: document.getElementById('tradeAction').value,
+                quantity: parseInt(document.getElementById('tradeQuantity').value),
+                orderType: document.getElementById('tradeOrderType').value,
+                limitPrice: document.getElementById('tradeLimitPrice').value
+            };
+
+            // Risk warning for trading functionality
+            if (!confirm('This will place a real trade order. Are you sure you want to proceed?')) {
+                return;
+            }
+
+            fetch('/api/trade', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess('Order placed successfully');
+                    bootstrap.Modal.getInstance(document.getElementById('tradeModal')).hide();
+                    refreshPortfolio();
+                } else {
+                    showError(data.message || 'Failed to place order');
+                }
+            })
+            .catch(error => {
+                console.error('Trade error:', error);
+                showError('Failed to place order');
+            });
+        }
+
+        function executeRebalance() {
+            if (!confirm('This will execute multiple trades to rebalance your portfolio. Continue?')) {
+                return;
+            }
+
+            fetch('/api/rebalance', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Portfolio rebalancing initiated');
+                        bootstrap.Modal.getInstance(document.getElementById('rebalanceModal')).hide();
+                        refreshPortfolio();
+                    } else {
+                        showError(data.message || 'Rebalancing failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Rebalance error:', error);
+                    showError('Failed to execute rebalancing');
+                });
+        }
+
+        function setupEventListeners() {
+            // Order type change handler
+            document.getElementById('tradeOrderType').addEventListener('change', function() {
+                const limitPriceGroup = document.getElementById('limitPriceGroup');
+                limitPriceGroup.style.display = this.value === 'LIMIT' ? 'block' : 'none';
+            });
+
+            // Holdings search
+            document.getElementById('holdingsSearch').addEventListener('input', function() {
+                filterHoldingsTable(this.value);
+            });
+        }
+
+        function filterHoldingsTable(searchTerm) {
+            const tbody = document.getElementById('holdingsBody');
+            const rows = tbody.getElementsByTagName('tr');
+            
+            for (let row of rows) {
+                const symbol = row.cells[0].textContent.toLowerCase();
+                const description = row.cells[0].textContent.toLowerCase();
+                const shouldShow = symbol.includes(searchTerm.toLowerCase()) || 
+                                 description.includes(searchTerm.toLowerCase());
+                row.style.display = shouldShow ? '' : 'none';
+            }
+        }
+
+        function startDataRefresh() {
+            // Refresh portfolio data every 30 seconds
+            setInterval(() => {
+                if (!document.hidden) {
+                    loadPortfolioData();
+                }
+            }, 30000);
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function showSuccess(message) {
+            // Implement success notification
+            alert('Success: ' + message);
+        }
+
+        function showError(message) {
+            // Implement error notification
+            alert('Error: ' + message);
+        }
+    </script>
+</body>
+</html>
