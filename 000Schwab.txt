@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 Trading Overlay System - Comprehensive Project Overview
 Project Architecture
 This is a sophisticated automated trading system built with Python that combines real-time market data processing, technical analysis, AI-driven predictions, and a transparent overlay display system. The system follows a modular architecture with several key components:
@@ -273,4 +274,281 @@ Deployment Options
 2.	Docker Container: Containerized deployment (Dockerfile provided)
 3.	Development Environment: Running from source code
 Summary
+=======
+Trading Overlay System - Comprehensive Project Overview
+Project Architecture
+This is a sophisticated automated trading system built with Python that combines real-time market data processing, technical analysis, AI-driven predictions, and a transparent overlay display system. The system follows a modular architecture with several key components:
+Core Components
+1. System Manager (core/system_manager.py)
+•	Function: Central manager that coordinates all system components
+•	Features:
+•	Singleton design pattern for global access
+•	Handles initialization and shutdown of all components
+•	Manages inter-component communication
+•	Initializes components in a specific order: core → data → trading → UI → AI
+2. Event Bus (core/event_bus.py)
+•	Function: Provides pub/sub event system for loosely coupled communication
+•	Features:
+•	Allows components to subscribe to events without direct dependencies
+•	Asynchronous event distribution
+3. State Manager (core/state_manager.py)
+•	Function: Manages application state using Redux-like patterns
+•	Features:
+•	Central state store
+•	Action dispatching
+•	Reducers for state transitions
+•	State subscription
+4. Overlay Window (core/overlay_window.py)
+•	Function: Transparent window that displays trading signals on top of other applications
+•	Features:
+•	Click-through capability
+•	Windows-specific optimizations using Win32 API
+•	Real-time prediction visualization
+•	Support/resistance levels display
+•	Volume profile visualization
+•	Trading signals display with confidence indicators
+Data Components
+1. API Integration (data/schwab_api.py)
+•	Function: Connects to Schwab's trading API
+•	Features:
+•	OAuth2 authentication flow
+•	Token management with secure storage
+•	Retry mechanisms with exponential backoff
+•	Rate limiting compliance
+•	Batch request optimization
+•	Comprehensive error handling
+•	Statistics tracking
+2. Real-Time Data Engine (data/real_time_data_engine.py)
+•	Function: Processes streaming market data
+•	Features:
+•	Real-time bar aggregation for multiple timeframes (1m, 5m, 15m, 30m, 1h, 4h, 1d)
+•	Price alert system
+•	Symbol subscription management
+•	Caching with Data Cache integration
+•	Data feed selection and fallback logic
+3. Data Feed Manager (data/data_feed_manager.py)
+•	Function: Manages multiple data sources
+•	Features:
+•	Unified interface for different data providers
+•	Fallback mechanisms
+•	Quote normalization
+4. Historical Database (data/historical_database.py)
+•	Function: Stores and retrieves historical price data
+•	Features:
+•	Database persistence
+•	Efficient querying
+•	Data validation
+5. Data Transformation (data/api_data_transformer.py)
+•	Function: Normalizes data formats between different sources
+•	Features:
+•	Format conversion
+•	Field mapping
+•	Type validation
+6. Schwab Streamer (data/schwab_streamer.py)
+•	Function: Handles WebSocket streaming for real-time data
+•	Features:
+•	Connection management
+•	Message parsing
+•	Heartbeat monitoring
+AI Components
+1. BiConNet Model (ai/biconnet_model.py)
+•	Function: Neural network architecture for price prediction
+•	Features:
+•	Bidirectional Convolutional Network architecture
+•	Multi-head attention mechanism
+•	Residual connections
+•	Dueling Q-network architecture for reinforcement learning
+•	Feature extraction capabilities
+•	Ensemble capability for multiple models
+2. Predictor (ai/predictor.py)
+•	Function: Makes trading predictions using the AI model
+•	Features:
+•	Real-time prediction using latest data
+•	Feature preparation and normalization
+•	Confidence scoring
+•	Model ensemble integration
+•	Prediction explanation
+•	Technical indicator calculation
+3. Model Registry (ai/model_registry.py)
+•	Function: Manages multiple AI models
+•	Features:
+•	Model versioning
+•	Loading/saving models
+•	Model metadata tracking
+4. Self-Learning (ai/self_learning.py)
+•	Function: Enables online learning for adapting to changing market conditions
+•	Features:
+•	Experience replay
+•	Model improvement during runtime
+•	Performance tracking
+Trading Components
+1. Strategy Manager (trading/strategy_manager.py)
+•	Function: Manages trading strategies and generates signals
+•	Features:
+•	Multiple strategy support
+•	Signal combination logic
+•	Trading signal generation
+•	Strategy performance tracking
+•	Callbacks for signal subscribers
+2. Paper Trading (trading/paper_trading.py)
+•	Function: Simulates trading without real money
+•	Features:
+•	Order execution simulation
+•	Position tracking
+•	Performance metrics
+3. Risk Manager (trading/risk_manager.py)
+•	Function: Manages trading risk
+•	Features:
+•	Position sizing
+•	Stop-loss management
+•	Exposure limits
+•	Risk metrics calculation
+4. Order Executor (trading/order_executor.py)
+•	Function: Executes trades with broker API
+•	Features:
+•	Order submission
+•	Order management
+•	Execution reporting
+5. Position Manager (trading/position_manager.py)
+•	Function: Tracks and manages open positions
+•	Features:
+•	Position tracking
+•	P&L calculation
+•	Position adjustment
+UI Components
+1. Main Window (ui/main_window.py)
+•	Function: Main application interface
+•	Features:
+•	Tab-based interface
+•	Status bar with system information
+•	Dark theme styling
+•	Workspace management
+•	Asyncio integration with Qt event loop
+2. Chart Components (ui/charts/)
+•	Function: Visualization of price data and indicators
+•	Features:
+•	Multiple chart layouts
+•	Technical indicators
+•	Drawing tools
+•	Alert systems
+•	Volume profile
+3. Formula Editor (ui/formula_editor.py)
+•	Function: Custom indicator creation
+•	Features:
+•	Expression parsing
+•	Formula validation
+•	Indicator visualization
+4. Tab System (ui/tabs/)
+•	Function: Organizes functionality into tabs
+•	Tabs Include:
+•	Overlay Tab: Controls for the overlay display
+•	AI Models Tab: Model management and visualization
+•	API Tab: Connection management and API settings
+•	Training Tab: Model training interface
+•	Visualization Tab: Data visualization tools
+•	Historical Chart Tab: Historical data analysis
+•	Backtesting Tab: Strategy testing
+•	Advanced Tab: System configuration
+Configuration System
+1. Settings Modules (config/settings/)
+•	Function: Manages application configuration
+•	Features:
+•	Modular settings organization (API, risk, overlay, data, etc.)
+•	Configuration validation
+•	Default values
+•	Configuration persistence
+2. Credentials Management (config/credentials.py)
+•	Function: Secure storage of API keys and credentials
+•	Features:
+•	Encrypted storage
+•	Separation from settings
+•	Secure loading
+Utility Components
+1. Indicators (utils/indicators.py)
+•	Function: Technical indicator calculation
+•	Features:
+•	Common indicators (RSI, MACD, Bollinger Bands, etc.)
+•	Custom indicator support
+•	Real-time calculation optimization
+2. Logging (utils/logging_config.py)
+•	Function: Comprehensive logging system
+•	Features:
+•	Log rotation
+•	Level-based filtering
+•	Multiple outputs (file, console)
+•	Error tracking
+3. Performance Monitor (utils/performance_monitor.py)
+•	Function: System performance tracking
+•	Features:
+•	CPU/memory usage monitoring
+•	API latency tracking
+•	Performance metrics
+4. GPU Manager (utils/gpu_manager.py)
+•	Function: GPU resource management
+•	Features:
+•	GPU availability detection
+•	Memory management
+•	Device selection
+Key Functionalities
+1. Real-Time Trading
+•	Connects to brokerage API (Schwab)
+•	Streams real-time market data
+•	Processes data into OHLCV bars
+•	Generates trading signals
+•	Executes trades automatically or semi-automatically
+2. AI-Powered Predictions
+•	Uses BiConNet (Bidirectional Convolutional Network) for price prediction
+•	Combines convolutional and LSTM layers with attention mechanism
+•	Employs reinforcement learning (Q-learning) for signal generation
+•	Features self-learning capability to adapt to changing markets
+3. Multi-Strategy System
+•	Combines AI-based signals with traditional strategies
+•	Implements momentum and mean-reversion strategies
+•	Allows for custom strategy creation
+•	Features signal combination logic for consensus decisions
+4. Overlay Display
+•	Creates transparent window that overlays trading terminals
+•	Displays predictions and signals directly on charts
+•	Shows support/resistance levels and volume profiles
+•	Indicates system status and connection information
+5. Backtesting
+•	Tests strategies on historical data
+•	Generates performance metrics
+•	Validates models before deployment
+•	Supports walk-forward testing
+6. Workspace Management
+•	Saves and loads multiple workspace configurations
+•	Manages layout preferences
+•	Preserves symbol selections and strategy settings
+Architecture Patterns
+1.	Modular Design: The system is built with clear separation of concerns
+2.	Event-Driven Architecture: Components communicate through events
+3.	Model-View-Controller (MVC): Separation of data, logic, and presentation
+4.	Dependency Injection: Components receive their dependencies
+5.	Singleton Pattern: Used for system-wide managers
+6.	Factory Pattern: Used for model creation
+7.	Repository Pattern: Used for data access
+8.	Strategy Pattern: Used for trading strategy implementation
+Technology Stack
+1.	Python: Core programming language
+2.	PyQt5: UI framework
+3.	PyTorch: Deep learning framework
+4.	NumPy/Pandas: Data processing
+5.	aiohttp: Asynchronous HTTP client/server
+6.	asyncio: Asynchronous I/O
+7.	SQLite/SQLAlchemy: Database storage
+8.	Win32 API: Windows-specific functionality for overlay
+9.	TA-Lib: Technical indicator library
+System Requirements
+1.	Operating System: Windows (for overlay functionality)
+2.	Python: 3.7+ with required packages
+3.	GPU: Optional but recommended for AI model training
+4.	API Access: Schwab API credentials
+5.	Storage: Sufficient for historical data and model storage
+Deployment Options
+1.	Standalone Application: Running as a desktop application
+2.	Docker Container: Containerized deployment (Dockerfile provided)
+3.	Development Environment: Running from source code
+Summary
+>>>>>>> Stashed changes
 This trading system integrates real-time market data, technical analysis, and AI-driven predictions into a unified platform with a transparent overlay display. The modular architecture allows for extensibility, while the combination of traditional strategies and AI models provides diverse trading signals. The system is designed for both automated and semi-automated trading, with comprehensive risk management and performance tracking capabilities
